@@ -86,6 +86,9 @@ const DoctorCard = ({ doctor }) => {
         Book Appointment
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </Link>
+      <Link to={`/doctors/${doctor.id}`} className="btn btn-secondary btn-sm mt-4 w-full">
+        Doctor Details
+      </Link>
     </Card>
   );
 };
