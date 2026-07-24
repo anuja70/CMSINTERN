@@ -19,7 +19,7 @@ import {
   Plus,
   CalendarPlus,
 } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../Contexts/ThemeContext';
 import Button from '../ui/Button';
 
 const navLinks = [
@@ -207,7 +207,7 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard">
+                <Link to="/admin">
                   <Button variant="outline" size="sm" icon={<LayoutDashboard className="h-4 w-4" />}>Dashboard</Button>
                 </Link>
                 <Button variant="danger" size="sm" icon={<LogOut className="h-4 w-4" />} onClick={handleLogout}>Logout</Button>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Download, Wallet, TrendingUp, Clock } from 'lucide-react';
-import StatCard from '../../../components/sections/StatCard';
-import SectionCard from '../../../components/sections/SectionCard';
-import StatusPill from '../../../components/sections/StatusPill';
+import StatCard from "../../../components/Sections/StatCard";
+import SectionCard from "../../../components/Sections/SectionCard";
+import StatusPill from "../../../components/Sections/Statuspill";
 import { invoices, currency } from '../../../utils/dashboardData';
 
 const methodTone = {
