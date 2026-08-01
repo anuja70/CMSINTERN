@@ -11,3 +11,15 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+
+// a model becoems a database table
+model User{
+  id  Int @id @default(autoincrement())
+  name  String
+  age   Int  
+  address String
+  email  String 
+
+
+}
