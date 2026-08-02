@@ -20,6 +20,18 @@ model User{
   age   Int  
   address String
   email  String 
+  password String
+  role Role @default(PATIENT)
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
 
+}
+
+enum Role {
+  ADMIN
+  Doctor
+  STAFF
+  PATIENT
 }
