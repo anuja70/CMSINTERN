@@ -1,4 +1,9 @@
 import {PrisamClient} from "@prisma/client"
 
 
-const prisam = new PrisamClient();
+export const prisam = new PrisamClient();({
+    
+})
+
+
+
