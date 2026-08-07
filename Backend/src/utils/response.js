@@ -13,6 +13,11 @@ export const successResponse = (
   });
 };
 
+// create response 
+export const createdResponse =(res,data , message='Resource create successfully') =>{
+  return successResponse(res,data,message,CREATED)
+}
+
 export const errorResponse = (
   res,
   message,

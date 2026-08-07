@@ -41,3 +41,22 @@ export const register = async (req, res) => {
     );
   }
 };
+
+export const login= async (req,res)=>{
+  try{
+    const loginData= loginSchema.parse(req.body)
+    const result = await loginUser(loginData)
+
+
+    // set refresh token in HTTp-only
+    setRefreshTokenCookie(res,result.accessToken)
+    // refrsh token removed from hte response body
+    delete result.refreshToken;
+    return successResponse(res,result,message.LOGIN_SUCCESS);
+
+
+  }
+  catch (error){
+    return errorResponse(res,error)
+  }
+}
