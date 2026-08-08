@@ -1,4 +1,5 @@
 import express from "express"; 
+import morgan from "morgan";
 import routes from "./routes/index.js";
 
 
@@ -12,4 +13,4 @@ app.use(express.json());//(it is expree inbuilt middleware function)   // it is 
 app.use("/api", routes)
 
 
- export default app
+ export default app; 
