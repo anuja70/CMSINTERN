@@ -1,24 +1,28 @@
-import { STATUS_CODES } from "../constans/statusCode.js";
-import { errorResponse } from "../utils/response.js";
-import { MESSAGES } from "../constans/message.js";
+import { validationResult } from 'express-validator';
+import {
+  successResponse,
+  errorResponse,
+} from "../utils/response.js";
 
-export const validate = (schema) => {
-    return (req, res, next) => {
-        const { error } = schema.validate(req.body, {
-            abortEarly: false
-        });
+export const validate = (validations) => {
+    return async (req, res, next) => {
+        try {
+            await Promise.all(validations.map(validation => validation.run(req)));
+            const errors = validationResult(req);
 
-        if (error) {
-            const errors = error.details.map((detail) => detail.message);
+            if (errors.isEmpty()) {
+                return next();
+            }
 
-            return errorResponse(
-                res,
-                new Error(MESSAGES.VALIDATION_FAILED),
-                STATUS_CODES.BAD_REQUEST,
-                errors
-            );
+            const formattedErrors = errors.array().map(error => ({
+                field: error.path,
+                message: error.msg,
+            }));
+
+            return responseHandler.error(res, 'Validation failed', 422, formattedErrors);
+        } catch (error) {
+            console.error('Validation error:', error);
+            return responseHandler.serverError(res);
         }
-
-        next();
     };
 };

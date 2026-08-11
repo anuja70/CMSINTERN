@@ -1,16 +1,53 @@
-import express from "express"; 
-import morgan from "morgan";
-import routes from "./routes/index.js";
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import router from './routes/index.js';
+import { ENV } from './config/env.js';
+
+const app = express();
+
+// Security
+app.use(helmet());
+
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+});
+app.use('/api', limiter);
 
 
 
- const app = express();
-app.use(morgan("dev"));  //  uses ofr the loggging (29ms) npm install morgan
-app.use(express.urlencoded({ extended: true })); ///Parses HTML form data.
-app.use(express.json());//(it is expree inbuilt middleware function)   // it is used to convert the http payload json into  javascript object to understand the req.body
+// Body Parsers
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
-/// api routes
-app.use("/api", routes)
+// ==================== ROUTES ====================
+
+// Authentication Routes
+app.use('/api',router);
 
 
- export default app; 
+
+// 404 Handler
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route not found',
+    });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: config.NODE_ENV === 'development' ? err.message : undefined,
+    });
+});
+
+export default app;
