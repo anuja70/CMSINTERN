@@ -1,4 +1,4 @@
-import  { z} from  "zod";
+import { z } from 'zod';
 
 // Register Validation Schema
 export const registerSchema = z.object({

@@ -24,6 +24,8 @@ model User {
   sessions      Session[]
   auditLogs     AuditLog[]
   otps          oTP[]
+patient Patient?
+
 
   @@map("users")
 }
@@ -86,11 +88,69 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+
+model Patient {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth       DateTime?
+  gender            Gender?
+  bloodGroup        String?
+  allergies         String?
+  medicalHistory    Json?
+  emergencyContact  Json?
+  address           String?
+  city              String?
+  province          String?
+  country           String?
+  zipCode           String?
+  insuranceProvider String?
+  insuranceNumber   String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  appointments      Appointment[]
+
+  @@map("patients")
+}
+enum Gender{
+  Male
+  Female 
+  others
+}
+
+
+model Appointment {
+  id           String            @id @default(cuid())
+  patientId    String
+  patient      Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date         DateTime
+  time         String
+  status       AppointmentStatus @default(SCHEDULED)
+  type         String?
+  notes        String?
+  
+  prescription String?
+  diagnosis    String?
+  followUpDate DateTime?
+  createdAt    DateTime          @default(now())
+
+  @@map("appointments")
+}
 enum Role {
   ADMIN
   DOCTOR
   PATIENT
+  string 
   RECEPTIONIST
+}
+enum AppointmentStatus{
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELED
+  RESCHEDULED
+  NO_SHOW
+
 }
 
 enum OTPType {
