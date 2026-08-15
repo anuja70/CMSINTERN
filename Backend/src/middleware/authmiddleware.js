@@ -1,46 +1,78 @@
 import prisma from "../config/database.js";
 import jwtService from "../utils/jwt.js";
 import {
-  successResponse,
-  errorResponse,
+ unauthorizedResponse,
+ forbiddenResponse,
   serverErrorResponse,
 } from "../utils/response.js";
 
 export const verifyToken = async (req, res, next) => {
     try {
+        // Get access token from cookie
         let token = req.cookies?.accessToken;
 
+        // If cookie doesn't contain token, check Authorization header
         if (!token && req.headers.authorization) {
-            token = req.headers.authorization.replace('Bearer ', '');
+            const authHeader = req.headers.authorization;
+
+            if (authHeader.startsWith("Bearer ")) {
+                token = authHeader.split(" ")[1];
+            }
         }
 
+        // No token
         if (!token) {
-            return serverErrorResponse.unauthorized(res, 'Authentication required');
+            return unauthorizedResponse(
+                res,
+                "Authentication required"
+            );
         }
 
+        // Verify access token
         let decoded;
+
         try {
             decoded = jwtService.verifyAccessToken(token);
         } catch (error) {
-            if (error.message === 'ACCESS_TOKEN_EXPIRED') {
-                return serverErrorResponse.unauthorized(res, 'Access token expired');
+            console.error("JWT verification error:", error);
+
+            if (error.message === "ACCESS_TOKEN_EXPIRED") {
+                return unauthorizedResponse(
+                    res,
+                    "Access token expired"
+                );
             }
-            return serverErrorResponse.serverError(res, 'Invalid access token');
+
+            return unauthorizedResponse(
+                res,
+                "Invalid access token"
+            );
         }
 
+        // Find user
         const user = await prisma.user.findUnique({
-            where: { id: decoded.id },
+            where: {
+                id: decoded.id,
+            },
         });
 
+        // User doesn't exist
         if (!user) {
-            return serverErrorResponse.unauthorized(res, 'User not found');
+            return unauthorizedResponse(
+                res,
+                "User not found"
+            );
         }
 
+        // User account disabled
         if (!user.isActive) {
-            return serverErrorResponse.unauthorized(res, 'Account is disabled');
+            return unauthorizedResponse(
+                res,
+                "Account is disabled"
+            );
         }
 
-        // Update session last activity
+        // Update session activity
         await prisma.session.updateMany({
             where: {
                 userId: user.id,
@@ -52,37 +84,64 @@ export const verifyToken = async (req, res, next) => {
             },
         });
 
+        // Attach user to request
         req.user = user;
+
         next();
+
     } catch (error) {
-        console.error('Auth middleware error:', error);
-        return serverErrorResponse.serverError(res);
+        console.error("Auth middleware error:", error);
+
+        return serverErrorResponse(
+            res,
+            "Internal server error"
+        );
     }
 };
+
 
 export const authorize = (...allowedRoles) => {
     return (req, res, next) => {
         try {
             const user = req.user;
+
+            // User not authenticated
             if (!user) {
-                return serverErrorResponse.unauthorized(res, 'User not authenticated');
+                return unauthorizedResponse(
+                    res,
+                    "User not authenticated"
+                );
             }
 
-            const hasRole = allowedRoles.some(role =>
-                role.toUpperCase() === user.role
+            // Check role
+            const hasRole = allowedRoles.some(
+                (role) => role.toUpperCase() === user.role.toUpperCase()
             );
 
             if (!hasRole) {
-                return serverErrorResponse.forbidden(res, 'Insufficient permissions');
+                return forbiddenResponse(
+                    res,
+                    "Insufficient permissions"
+                );
             }
 
             next();
+
         } catch (error) {
-            console.error('Authorization error:', error);
-            return serverErrorResponse.serverError(res);
+            console.error("Authorization error:", error);
+
+            return serverErrorResponse(
+                res,
+                "Internal server error"
+            );
         }
     };
 };
 
-export const isAdmin = authorize('ADMIN');
-export const isDoctorOrAdmin = authorize('DOCTOR', 'ADMIN');
+
+export const isAdmin = authorize("ADMIN");
+
+export const isDoctorOrAdmin = authorize(
+    "DOCTOR",
+    "ADMIN"
+);
