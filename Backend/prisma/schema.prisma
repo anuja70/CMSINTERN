@@ -1,9 +1,7 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "mysql"
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 model User {
@@ -12,7 +10,8 @@ model User {
   password        String
   fullName        String
   phone           String?
-  role            Role     @default(PATIENT)
+  avatar          String?  // Profile picture URL
+  role            String   @default("PATIENT")
   isActive        Boolean  @default(true)
   isEmailVerified Boolean  @default(false)
   lastLoginAt     DateTime?
@@ -20,14 +19,58 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  sessions       Session[]
   refreshTokens RefreshToken[]
-  sessions      Session[]
-  auditLogs     AuditLog[]
-  otps          OTP[]
-  patient       Patient?
-  doctor        Doctor?
+  auditLogs      AuditLog[]
+  otps           OTP[]
+  patient        Patient?
+  doctor         Doctor?
 
   @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("otps")
 }
 
 model Patient {
@@ -37,7 +80,7 @@ model Patient {
   dateOfBirth       DateTime?
   gender            Gender?
   bloodGroup        String?
-  allergies         String?
+  allergies         Json?
   medicalHistory    Json?
   emergencyContact  Json?
   address           String?
@@ -47,6 +90,7 @@ model Patient {
   zipCode           String?
   insuranceProvider String?
   insuranceNumber   String?
+  documents         Json?    // Array of uploaded document URLs
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -61,7 +105,7 @@ model Doctor {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   specialization    String?
   licenseNumber     String?
-  qualifications    String?
+  qualifications    Json?
   experience        Int?
   hospital          String?
   department        String?
@@ -70,116 +114,26 @@ model Doctor {
   bio               String?
   rating            Float    @default(0)
   totalReviews      Int      @default(0)
+  certificates      Json?    // Array of uploaded certificate URLs
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  appointments Appointment[]
+  appointments   Appointment[]
 
   @@map("doctors")
 }
 
 model Appointment {
-  id           String   @id @default(cuid())
-  patientId    String
-  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctorId     String
-  doctor       Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  date         DateTime
-  time         String
-  status       AppointmentStatus @default(SCHEDULED)
-  type         String?
-  notes        String?
-  symptoms     String?
-  prescription String?
-  diagnosis    String?
-  followUpDate DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId          String
+  doctor            Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  appointmentDate   DateTime
+  status            String   @default("SCHEDULED")
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("appointments")
-}
-
-enum Role {
-  ADMIN
-  DOCTOR
-  PATIENT
-  RECEPTIONIST
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  RESCHEDULED
-  NO_SHOW
-}
-
-model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userAgent String?
-  ipAddress String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  revoked   Boolean  @default(false)
-  revokedAt DateTime?
-
-  @@map("refresh_tokens")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token        String   @unique
-  userAgent    String?
-  ipAddress    String?
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  lastActivity DateTime @default(now())
-  isActive     Boolean  @default(true)
-
-  @@map("sessions")
-}
-
-model OTP {
-  id        String   @id @default(cuid())
-  email     String
-  otp       String
-  type      OTPType
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  isUsed    Boolean  @default(false)
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("otps")
-}
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
-  resource  String
-  details   Json?
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-
-  @@map("audit_logs")
-}
-
-enum OTPType {
-  EMAIL_VERIFICATION
-  PASSWORD_RESET
 }
