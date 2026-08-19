@@ -1,139 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+
+// =========================
+// ENUMS
+// =========================
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+  RECEPTIONIST
+}
+
 enum Gender {
   MALE
   FEMALE
   OTHER
 }
 
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+  NO_SHOW
+}
+
+enum OTPType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  LOGIN
+  PHONE_VERIFICATION
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  REGISTER
+  CREATE
+  UPDATE
+  DELETE
+  PASSWORD_CHANGE
+  PASSWORD_RESET
+}
+
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+
+// =========================
+// USER
+// =========================
+
 model User {
   id              String   @id @default(cuid())
   email           String   @unique
   password        String
   fullName        String
-  phone           String?
-  avatar          String?  // Profile picture URL
-  role            String   @default("PATIENT")
+  phone           String?  @unique
+  avatar          String?
+  role            Role     @default(PATIENT)
   isActive        Boolean  @default(true)
   isEmailVerified Boolean  @default(false)
   lastLoginAt     DateTime?
   lastLoginIP     String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
-  sessions       Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   refreshTokens RefreshToken[]
-  auditLogs      AuditLog[]
-  otps           OTP[]
-  patient        Patient?
-  doctor         Doctor?
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  otps          OTP[]
+
+  patient Patient?
+  doctor  Doctor?
 
   @@map("users")
 }
 
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
 
-  @@map("sessions")
-}
+// =========================
+// REFRESH TOKEN
+// =========================
 
 model RefreshToken {
   id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
+  token     String   @db.Text
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
   @@map("refresh_tokens")
 }
 
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
-  details   Json?
-  createdAt DateTime @default(now())
 
-  @@map("audit_logs")
+// =========================
+// SESSION
+// =========================
+
+model Session {
+  id           String        @id @default(cuid())
+  sessionId    String        @unique
+  status       SessionStatus @default(ACTIVE)
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  lastActiveAt DateTime      @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
 }
+
+
+// =========================
+// OTP
+// =========================
 
 model OTP {
   id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   code      String
+  type      OTPType
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  verified  Boolean  @default(false)
+  attempts  Int      @default(0)
 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
   @@map("otps")
 }
 
+
+// =========================
+// AUDIT LOG
+// =========================
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  action      AuditAction
+  description String?     @db.Text
+  ipAddress   String?
+  userAgent   String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+
+// =========================
+// PATIENT
+// =========================
+
 model Patient {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dateOfBirth       DateTime?
-  gender            Gender?
-  bloodGroup        String?
-  allergies         Json?
-  medicalHistory    Json?
-  emergencyContact  Json?
-  address           String?
-  city              String?
-  state             String?
-  country           String?
-  zipCode           String?
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  dateOfBirth      DateTime?
+  gender           Gender?
+  bloodGroup       String?
+  allergies        Json
+  medicalHistory   Json?
+  emergencyContact Json?
+
+  address String?
+  city    String?
+  state   String?
+  country String?
+  zipCode String?
+
   insuranceProvider String?
   insuranceNumber   String?
-  documents         Json?    // Array of uploaded document URLs
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+
+  documents Json?
 
   appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("patients")
 }
 
-model Doctor {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  specialization    String?
-  licenseNumber     String?
-  qualifications    Json?
-  experience        Int?
-  hospital          String?
-  department        String?
-  consultationFee   Float?
-  availableDays     Json?
-  bio               String?
-  rating            Float    @default(0)
-  totalReviews      Int      @default(0)
-  certificates      Json?    // Array of uploaded certificate URLs
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
-  appointments   Appointment[]
+// =========================
+// DOCTOR
+// =========================
+
+model Doctor {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  specialization  String?
+  licenseNumber   String?
+  qualifications  Json
+  experience      Int?
+  hospital        String?
+  department      String?
+  consultationFee Float?
+
+  availableDays Json?
+  bio            String?
+
+  rating       Float @default(0)
+  totalReviews Int   @default(0)
+
+  certificates Json?
+
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("doctors")
 }
 
-model Appointment {
-  id                String   @id @default(cuid())
-  patientId         String
-  patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctorId          String
-  doctor            Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  appointmentDate   DateTime
-  status            String   @default("SCHEDULED")
-  notes             String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
+// =========================
+// APPOINTMENT
+// =========================
+
+model Appointment {
+  id String @id @default(cuid())
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  date DateTime
+  time String
+
+  status AppointmentStatus @default(SCHEDULED)
+
+  type   String?
+  notes  String?
+  symptoms Json
+
+  prescription String?
+  diagnosis    String?
+  followUpDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([date])
+  @@index([status])
   @@map("appointments")
 }
+  
