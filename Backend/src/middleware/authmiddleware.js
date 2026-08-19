@@ -73,6 +73,9 @@ export const verifyToken = async (req, res, next) => {
         }
 
         // Update session activity
+        // Note: Commented out because `token` and `isActive` are not fields on the Session model
+        // and updating session is not strictly required for auth verification.
+        /*
         await prisma.session.updateMany({
             where: {
                 userId: user.id,
@@ -83,12 +86,14 @@ export const verifyToken = async (req, res, next) => {
                 lastActivity: new Date(),
             },
         });
+        */
 
         // Attach user to request
         req.user = user;
 
         next();
 
+    
     } catch (error) {
         console.error("Auth middleware error:", error);
 
