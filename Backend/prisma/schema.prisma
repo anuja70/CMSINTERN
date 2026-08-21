@@ -215,6 +215,7 @@ model Patient {
   documents Json?
 
   appointments Appointment[]
+  medicalRecords MedicalRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -267,6 +268,7 @@ model Doctor {
   updatedAt         DateTime @updatedAt
 
   appointments Appointment[]
+  medicalRecords MedicalRecord[]
 
   @@map("doctors")
 }
@@ -298,6 +300,8 @@ model Appointment {
   diagnosis    String?
   followUpDate DateTime?
 
+  medicalRecord MedicalRecord?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -306,4 +310,92 @@ model Appointment {
   @@index([date])
   @@index([status])
   @@map("appointments")
+}
+
+model MedicalRecord {
+  id            String       @id @default(cuid())
+  patientId     String
+  patient       Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId      String
+  doctor        Doctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  appointmentId String?      @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  diagnosis     String?
+  diagnosisDate DateTime?
+  symptoms      Json
+  notes         String?
+
+  prescriptions Prescription[]
+  reports       Report[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("medical_records")
+}
+
+model Prescription {
+  id              String        @id @default(cuid())
+  medicalRecordId String
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+
+  medication     String
+  dosage         String
+  frequency      String
+  duration       String
+  instructions   String?
+  prescribedDate DateTime           @default(now())
+  expiryDate     DateTime?
+  refills        Int                @default(0)
+  status         PrescriptionStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("prescriptions")
+}
+
+model Report {
+  id              String        @id @default(cuid())
+  medicalRecordId String
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+
+  name    String
+  type    ReportType
+  date    DateTime     @default(now())
+  result  String?
+  fileUrl String?
+  notes   String?
+  status  ReportStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reports")
+}
+
+enum PrescriptionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum ReportType {
+  LAB_REPORT
+  X_RAY
+  MRI
+  CT_SCAN
+  ULTRASOUND
+  BLOOD_TEST
+  URINE_TEST
+  ECG
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
