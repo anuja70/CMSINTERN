@@ -7,14 +7,14 @@ export const createMedicalRecord = async (recordData) => {
  const patient = await prisma.patient.findUnique({
    where: { id:patientId },
  });
- if (!patientid) {
+ if (!patient) {
      throw new Error("Patient not found");
  }
  //doctor 
  const doctor = await prisma.doctor.findUnique({
     where:{ id:doctorId},
     });
- if (!doctorid) {
+ if (!doctor) {
      throw new Error("Doctor not found");
  }
  //appointment
@@ -31,7 +31,7 @@ export const getAllMedicalRecords = async (page = 1, limit = 10, filters = {}) =
     const  skip = (page - 1) * limit;
     const where = {};
     
-    if (filters.patientId) where.patientId = filters.patientId;
+  if (filters.patientId) where.patientId = filters.patientId;
   if (filters.doctorId) where.doctorId = filters.doctorId;
   if (filters.fromDate) where.diagnosisDate = { gte: new Date(filters.fromDate) };
   if (filters.toDate) where.diagnosisDate = { ...where.diagnosisDate, lte: new Date(filters.toDate) };
