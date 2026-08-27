@@ -492,3 +492,74 @@ export const deletePayment = async (paymentId) => {
         message: "Payment deleted successfully"
     };
 };
+
+//get payment histroy (admin and staff dashboard)
+export const getPaymentHistory = async (patientId , page=1, limit=10) =>{
+    const skip = (page-1)* limit;
+    
+    const [payments, total] = await Promise.all([
+        prisma.payment.findMany({
+            where:{
+                bill:{
+                    patientId:patientId
+                }
+            },
+            include:{
+                bill:{
+                    include:{
+                        patient:{
+                            include:{
+                                user:{
+                                    select:{
+                                        fullName:true,
+                                        email:true,
+                                        phone:true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            skip,
+            take:limit,
+            orderBy:{
+                paymentDate:"desc"
+            }
+        }),
+        prisma.payment.count({
+            where:{
+                bill:{
+                    patientId:patientId
+                }
+            }
+        })
+    ])
+
+    return {
+        payments,
+        pagination:{
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total/limit)
+        }
+    }
+
+
+}
+
+// Alias for getAllPayments to match controller
+export const getAllPayments = async (page=1, limit=10, filters={}) => {
+    return getPayments(page, limit, filters);
+}
+
+// Alias for getPaymentByBillId to match controller
+export const getPaymentByBillId = async (billId) => {
+    return getPaymentById(billId);
+}
+
+// Alias for getPatientPaymentHistory to match controller
+export const getPatientPaymentHistory = async (patientId, page=1, limit=10) => {
+    return getPaymentHistory(patientId, page, limit);
+}
