@@ -291,4 +291,4 @@ socket.on('stopTyping', (data) => {
     } catch (err) {
         console.error('Stop typing error:', err);
     }
-});
+}); 
