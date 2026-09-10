@@ -55,11 +55,9 @@ export const env = {
     parseInt(process.env.RESEND_OTP_RATE_LIMIT_MAX) || 3,
     Cloud_Name:process.env.Cloud_Name,
     Cloud_API_SECRET:process.env.Cloud_API_SECRET,
-    Cloud_API_KEY:process.env.Cloud_API_KEY
+    Cloud_API_KEY: process.env.Cloud_API_KEY,
 
-};
-
-// Khalti Payment
+  // Khalti Payment
   KHALTI_SECRET_KEY: process.env.KHALTI_SECRET_KEY,
   KHALTI_RETURN_URL: process.env.KHALTI_RETURN_URL,
   KHALTI_WEBSITE_URL: process.env.KHALTI_WEBSITE_URL,
