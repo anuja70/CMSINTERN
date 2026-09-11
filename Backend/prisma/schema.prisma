@@ -32,6 +32,7 @@ model User {
   sentMessages  ChatMessage[] @relation("SentMessages")
   receivedMessages ChatMessage[] @relation("ReceivedMessages")
   notifications Notification[]
+  processedPayments Payment[] @relation("PaymentProcessor")
 
   @@map("users")
 }
@@ -133,6 +134,7 @@ model Appointment {
 
   medicalRecords MedicalRecord[]
   bills          Bill[]
+  payments       Payment[]
 
   @@map("appointments")
 }
@@ -238,8 +240,11 @@ model Bill {
 // ==================== PAYMENT MODEL ====================
 model Payment {
   id              String   @id @default(cuid())
-  billId          String
-  bill            Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  billId          String?
+  bill            Bill?    @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  appointmentId   String?
+  appointment     Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   
   amount          Float
   method          PaymentMethod
@@ -250,6 +255,9 @@ model Payment {
   status          PaymentStatus @default(COMPLETED)
   refundedAt      DateTime?
   refundReason    String?
+
+  processedBy     String?
+  processor       User? @relation("PaymentProcessor", fields: [processedBy], references: [id], onDelete: SetNull)
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
