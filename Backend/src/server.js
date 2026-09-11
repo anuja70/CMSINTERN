@@ -5,13 +5,12 @@ import {createServer} from "http"
 import { initializeSocket } from "./config/socket.js";
 
 
-//connect to database
-await prisma.$connect()
+await prisma.$connect();
 
 const server = createServer(app)
 initializeSocket(server)  // initialize socket.io with the server
 
-app.listen(ENV.PORT, () => {
+server.listen(ENV.PORT, () => {
     console.log(`Server is running on port ${ENV.PORT}`);
     console.log(`websocket is running on localhost :${ENV.PORT}`)
-})
+});
