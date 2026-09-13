@@ -17,8 +17,8 @@ import {
   ArrowRight,
   HeartPulse,
 } from 'lucide-react';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import Card from '../Components/ui/Card';
+import Button from '../Components/ui/Button';
 
 const services = [
   { icon: Heart, tone: 'rose', title: 'Cardiology', description: 'Comprehensive heart care including diagnosis, treatment, and prevention of cardiovascular disease.', features: ['Heart checkups', 'ECG/EKG', 'Cardiac surgery', 'Rehabilitation'], path: '/services/cardiology' },
