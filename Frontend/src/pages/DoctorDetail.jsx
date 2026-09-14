@@ -16,8 +16,8 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 import { doctorsData } from '../utils/dummyData';
-import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
+import Button from '../Components/ui/Button';
+import Card from '../Components/ui/Card';
 
 const AVATAR_FALLBACK =
   'data:image/svg+xml;utf8,' +

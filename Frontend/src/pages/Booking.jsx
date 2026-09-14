@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, CheckCircle2, User, Calendar, Clock, CreditCard, ChevronLeft } from 'lucide-react';
 import { doctorsData } from '../utils/dummyData';
-import Button from '../components/ui/Button';
+import Button from '../Components/ui/Button';
 
 const timeSlots = [
   '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',

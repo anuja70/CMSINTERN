@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Search, Filter, CalendarPlus, Globe, Building2, X, CheckCircle2 } from 'lucide-react';
-import SectionCard from '../../../components/sections/SectionCard';
-import StatusPill from '../../../components/sections/StatusPill';
+import SectionCard from '../../../Components/sections/SectionCard';
+import StatusPill from '../../../Components/sections/StatusPill';
 import { todaysAppointments as initialAppointments, currency } from '../../../utils/dashboardData';
 
 const tabs = ['All', 'Booked', 'Checked-in', 'In progress', 'Completed', 'No-show'];

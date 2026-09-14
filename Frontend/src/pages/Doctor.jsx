@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import SearchBar from '../components/doctors/SearchBar';
-import FilterSection from '../components/doctors/FilterSection';
-import DoctorsList from '../components/doctors/DoctorList';
+import SearchBar from '../Components/doctors/SearchBar';
+import FilterSection from '../Components/doctors/FilterSection';
+import DoctorsList from '../Components/doctors/DoctorList';
 
 const Doctor = () => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -13,12 +13,12 @@ import {
   CreditCard,
   Check,
 } from 'lucide-react';
-import StatCard from '../../../components/sections/StatCard';
-import SectionCard from '../../../components/sections/SectionCard';
-import AreaChart from '../../../components/sections/AreaChart';
-import DonutChart from '../../../components/sections/DonutChart';
-import BarList from '../../../components/sections/BarList';
-import StatusPill from '../../../components/sections/StatusPill';
+import StatCard from '../../../Components/sections/StatCard';
+import SectionCard from '../../../Components/sections/SectionCard';
+import AreaChart from '../../../Components/sections/AreaChart';
+import DonutChart from '../../../Components/sections/DonutChart';
+import BarList from '../../../Components/sections/BarList';
+import StatusPill from '../../../Components/sections/StatusPill';
 import {
   kpis,
   revenueTrend,

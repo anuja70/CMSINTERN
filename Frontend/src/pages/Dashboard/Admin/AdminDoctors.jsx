@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star, Briefcase, Wallet, UserPlus, MoreHorizontal } from 'lucide-react';
-import SectionCard from '../../../components/sections/SectionCard';
+import SectionCard from '../../../Components/sections/SectionCard';
 import { doctorsData } from '../../../utils/dummyData';
 import { currency } from '../../../utils/dashboardData';
 

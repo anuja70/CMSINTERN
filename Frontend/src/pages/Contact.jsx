@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageSquare } from 'lucide-react';
-import { Facebook, Twitter, Instagram, Linkedin } from '../components/ui/BrandIcons';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
+import { Facebook, Twitter, Instagram, Linkedin } from '../Components/ui/BrandIcons';
+import Card from '../Components/ui/Card';
+import Button from '../Components/ui/Button';
+import Input from '../Components/ui/Input';
 
 const contactInfo = [
   { Icon: MapPin, title: 'Address', details: 'Chabahil, Kathmandu, Nepal' },

@@ -23,10 +23,10 @@ import {
   Quote,
   Phone,
 } from 'lucide-react';
-import HeroSection from '../components/doctors/HeroSection.jsx';
-import DoctorCard from '../components/doctors/DoctorCard';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import HeroSection from '../Components/doctors/HeroSection.jsx';
+import DoctorCard from '../Components/doctors/DoctorCard';
+import Card from '../Components/ui/Card';
+import Button from '../Components/ui/Button';
 import { doctorsData } from '../utils/dummyData';
 
 const specialties = [

@@ -13,7 +13,7 @@ import {
   Sliders,
   Volume2,
 } from 'lucide-react';
-import SectionCard from '../../../components/sections/SectionCard';
+import SectionCard from '../../../Components/sections/SectionCard';
 import { doctorsData } from '../../../utils/dummyData';
 
 const StaffSettings = () => {

@@ -15,11 +15,11 @@ import {
   X,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import SectionCard from '../../../components/sections/SectionCard';
-import StatusPill from '../../../components/sections/StatusPill';
+import SectionCard from '../../../Components/sections/SectionCard';
+import StatusPill from '../../../Components/sections/StatusPill';
 import { staffKpis, todaysAppointments, liveQueue, currency } from '../../../utils/dashboardData';
 import { doctorsData } from '../../../utils/dummyData';
-import CustomDoctorSelect from '../../../components/ui/CustomDoctorSelect';
+import CustomDoctorSelect from '../../../Components/ui/CustomDoctorSelect';
 
 const StaffOverview = () => {
   const [queueData, setQueueData] = useState(liveQueue);

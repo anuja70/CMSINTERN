@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HeartHandshake, Microscope, ShieldCheck, Globe2, ArrowRight, Building2 } from 'lucide-react';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import Card from '../Components/ui/Card';
+import Button from '../Components/ui/Button';
 
 const values = [
   { icon: HeartHandshake, title: 'Patient First', description: 'We prioritize patient care and comfort above all else.' },
