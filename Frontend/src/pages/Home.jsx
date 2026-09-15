@@ -23,8 +23,8 @@ import {
   Quote,
   Phone,
 } from 'lucide-react';
-import HeroSection from '../Components/doctors/HeroSection.jsx';
-import DoctorCard from '../Components/doctors/DoctorCard';
+import HeroSection from '../Components/Doctors/HeroSection.jsx';
+import DoctorCard from '../Components/Doctors/DoctorCard';
 import Card from '../Components/ui/Card';
 import Button from '../Components/ui/Button';
 import { doctorsData } from '../utils/dummyData';

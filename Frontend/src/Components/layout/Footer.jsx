@@ -12,7 +12,7 @@ import {
   Send,
   Heart,
 } from 'lucide-react';
-import { Facebook, Twitter, Instagram, Linkedin, Youtube } from '../ui/BrandIcons';
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from '../ui/Brandicons';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
