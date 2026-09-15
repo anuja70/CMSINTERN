@@ -39,7 +39,7 @@ import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
 import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
 
 // Patient Dashboard
-import PatientAppointments from "../pages/Dashboard/Patient/PatientAppointments";
+import PatientAppointment from "../pages/Dashboard/Patient/PatientAppointment";
 import PatientHistory from "../pages/Dashboard/Patient/PatientHistory";
 
 // Doctor Dashboard
@@ -179,7 +179,7 @@ const router = createBrowserRouter([
     ),
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <PatientAppointments /> },
+      { index: true, element: <PatientAppointment /> },
       { path: 'history', element: <PatientHistory /> },
     ],
   },
