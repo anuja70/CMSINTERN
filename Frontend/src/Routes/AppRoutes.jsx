@@ -11,7 +11,7 @@ import AuthLayout from "../Components/layout/AuthLayout";
 import AdminLayout from "../Components/layout/AdminLayout";
 import StaffLayout from "../Components/layout/StaffLayout";
 import PatientLayout from "../Components/layout/PatientLayout";
-import DoctorLayout from '../components/layout/DoctorLayout';
+import DoctorLayout from "../Components/layout/DoctorLayout";
 
 // Public pages
 import Home from "../pages/Home";
@@ -24,28 +24,33 @@ import Services from "../pages/Services";
 import ServiceDetail from "../pages/ServiceDetail";
 import Booking from "../pages/Booking";
 
-// Dashboard pages — Admin
-import AdminOverview from '../pages/dashboard/admin/AdminOverview';
-import StaffOverview from '../pages/dashboard/staff/StaffOverview';
-import StaffAppointments from '../pages/dashboard/staff/StaffAppointments';
-import StaffPatients from '../pages/dashboard/staff/StaffPatients';
-import StaffSettings from '../pages/dashboard/staff/StaffSettings';
-import AdminDoctors from '../pages/dashboard/admin/AdminDoctors';
-import StaffQueue from '../pages/dashboard/staff/StaffQueue';
-import StaffBilling from '../pages/dashboard/staff/StaffBilling';
-import AdminReports from '../pages/dashboard/admin/AdminReports';
-import AdminSettings from '../pages/dashboard/admin/AdminSettings';
-import PatientAppointments from '../pages/dashboard/patient/PatientAppointments';
-import PatientHistory from '../pages/dashboard/patient/PatientHistory';
+// Admin Dashboard
+import AdminOverview from "../pages/Dashboard/Admin/AdminOverview";
+import AdminDoctors from "../pages/Dashboard/Admin/AdminDoctors";
+import AdminReports from "../pages/Dashboard/Admin/AdminReports";
+import AdminSettings from "../pages/Dashboard/Admin/AdminSettings";
 
-// Dashboard pages — Doctor
-import DoctorOverview from '../pages/dashboard/doctor/DoctorOverview';
-import DoctorAppointments from '../pages/dashboard/doctor/DoctorAppointments';
-import DoctorPatients from '../pages/dashboard/doctor/DoctorPatients';
-import DoctorRecords from '../pages/dashboard/doctor/DoctorRecords';
-import DoctorSettings from '../pages/dashboard/doctor/DoctorSettings';
+// Staff Dashboard
+import StaffOverview from "../pages/Dashboard/Staff/StaffOverview";
+import StaffAppointments from "../pages/Dashboard/Staff/StaffAppointment";
+import StaffPatients from "../pages/Dashboard/Staff/Staffpatients";
+import StaffQueue from "../pages/Dashboard/Staff/StaffQueue";
+import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
+import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
 
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+// Patient Dashboard
+import PatientAppointments from "../pages/Dashboard/Patient/PatientAppointments";
+import PatientHistory from "../pages/Dashboard/Patient/PatientHistory";
+
+// Doctor Dashboard
+import DoctorOverview from "../pages/Dashboard/Doctor/DoctorOverview";
+import DoctorAppointments from "../pages/Dashboard/Doctor/DoctorAppointments";
+import DoctorPatients from "../pages/Dashboard/Doctor/DoctorPatients";
+import DoctorRecords from "../pages/Dashboard/Doctor/DoctorRecords";
+import DoctorSettings from "../pages/Dashboard/Doctor/DoctorSettings";
+
+import LoadingSpinner from "../Components/ui/LoadingSpinner" ;
+
 
 const RouteWrapper = ({ children }) => (
   <React.Suspense
