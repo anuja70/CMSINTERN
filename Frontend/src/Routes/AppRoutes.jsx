@@ -39,15 +39,15 @@ import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
 import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
 
 // Patient Dashboard
-import PatientAppointment from "../pages/Dashboard/Patient/PatientAppointment";
-import PatientHistory from "../pages/Dashboard/Patient/PatientHistory";
+import PatientAppointment from "../pages/Dashboard/patient/PatientAppointment";
+import PatientHistory from "../pages/Dashboard/patient/PatientHistory";
 
 // Doctor Dashboard
-import DoctorOverview from "../pages/Dashboard/Doctor/DoctorOverview";
-import DoctorAppointments from "../pages/Dashboard/Doctor/DoctorAppointments";
-import DoctorPatients from "../pages/Dashboard/Doctor/DoctorPatients";
-import DoctorRecords from "../pages/Dashboard/Doctor/DoctorRecords";
-import DoctorSettings from "../pages/Dashboard/Doctor/DoctorSettings";
+import DoctorOverview from "../pages/Dashboard/doctor/DoctorOverview";
+import DoctorAppointments from "../pages/Dashboard/doctor/DoctorAppointments";
+import DoctorPatients from "../pages/Dashboard/doctor/DoctorPatients";
+import DoctorRecords from "../pages/Dashboard/doctor/DoctorRecords";
+import DoctorSettings from "../pages/Dashboard/doctor/DoctorSettings";
 
 import LoadingSpinner from "../Components/ui/LoadingSpinner" ;
 
