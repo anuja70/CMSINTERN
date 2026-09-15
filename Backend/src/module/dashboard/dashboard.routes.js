@@ -1,6 +1,7 @@
 import express from 'express';
 import * as dashboardController from './dashboard.controller.js';
 import { verifyToken, authorize } from '../../middleware/authMiddleware.js';
+import { ROLES } from '../../constans/roles.js';
 
 const router = express.Router();
 
@@ -9,31 +10,39 @@ router.use(verifyToken);
 
 // ==================== DASHBOARD ROUTES ====================
 
+
+// Doctor self dashboard (DOCTOR only)
+router.get(
+  '/doctor-me',
+  authorize(ROLES.DOCTOR),
+  dashboardController.getDoctorSelfDashboard
+);
+
 // Full statistics summary (Admin only)
 router.get(
   '/statistics',
-  authorize('ADMIN'),
+  authorize(ROLES.ADMIN),
   dashboardController.getDashboardStats
 );
 
 // Daily summary report (Admin + Receptionist)
 router.get(
   '/daily-summary',
-  authorize('ADMIN', 'RECEPTIONIST'),
+  authorize(ROLES.ADMIN, ROLES.RECEPTIONIST),
   dashboardController.getDailySummary
 );
 
 // Revenue report (Admin only)
 router.get(
   '/revenue',
-  authorize('ADMIN'),
+  authorize(ROLES.ADMIN),
   dashboardController.getRevenueReport
 );
 
 // Doctor-wise load (Admin + Receptionist)
 router.get(
   '/doctor-load',
-  authorize('ADMIN', 'RECEPTIONIST'),
+  authorize(ROLES.ADMIN, ROLES.RECEPTIONIST),
   dashboardController.getDoctorLoad
 );
 
