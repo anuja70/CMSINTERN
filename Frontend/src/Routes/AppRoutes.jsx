@@ -11,6 +11,7 @@ import AuthLayout from "../Components/layout/AuthLayout";
 import AdminLayout from "../Components/layout/AdminLayout";
 import StaffLayout from "../Components/layout/StaffLayout";
 import PatientLayout from "../Components/layout/PatientLayout";
+import DoctorLayout from '../components/layout/DoctorLayout';
 
 // Public pages
 import Home from "../pages/Home";
@@ -23,275 +24,211 @@ import Services from "../pages/Services";
 import ServiceDetail from "../pages/ServiceDetail";
 import Booking from "../pages/Booking";
 
-// Admin dashboard
-import AdminOverview from "../pages/Dashboard/Admin/AdminOverview";
-import AdminDoctors from "../pages/Dashboard/Admin/AdminDoctors";
-import AdminReports from "../pages/Dashboard/Admin/AdminReports";
-import AdminSettings from "../pages/Dashboard/Admin/AdminSettings";
+// Dashboard pages — Admin
+import AdminOverview from '../pages/dashboard/admin/AdminOverview';
+import StaffOverview from '../pages/dashboard/staff/StaffOverview';
+import StaffAppointments from '../pages/dashboard/staff/StaffAppointments';
+import StaffPatients from '../pages/dashboard/staff/StaffPatients';
+import StaffSettings from '../pages/dashboard/staff/StaffSettings';
+import AdminDoctors from '../pages/dashboard/admin/AdminDoctors';
+import StaffQueue from '../pages/dashboard/staff/StaffQueue';
+import StaffBilling from '../pages/dashboard/staff/StaffBilling';
+import AdminReports from '../pages/dashboard/admin/AdminReports';
+import AdminSettings from '../pages/dashboard/admin/AdminSettings';
+import PatientAppointments from '../pages/dashboard/patient/PatientAppointments';
+import PatientHistory from '../pages/dashboard/patient/PatientHistory';
 
-// Staff dashboard
-import StaffOverview from "../pages/Dashboard/Staff/StaffOverview";
-import StaffAppointment from "../pages/Dashboard/Staff/StaffAppointment";
-import Staffpatients from "../pages/Dashboard/Staff/Staffpatients";
-import StaffQueue from "../pages/Dashboard/Staff/StaffQueue";
-import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
-import StaffSetting from "../pages/Dashboard/Staff/StaffSetting";
+// Dashboard pages — Doctor
+import DoctorOverview from '../pages/dashboard/doctor/DoctorOverview';
+import DoctorAppointments from '../pages/dashboard/doctor/DoctorAppointments';
+import DoctorPatients from '../pages/dashboard/doctor/DoctorPatients';
+import DoctorRecords from '../pages/dashboard/doctor/DoctorRecords';
+import DoctorSettings from '../pages/dashboard/doctor/DoctorSettings';
 
-// Patient dashboard
-import PatientAppointment from "../pages/Dashboard/patient/PatientAppointment";
-import PatientHistory from "../pages/Dashboard/patient/PatientHistory";
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
-// UI
-import LoadingSpinner from "../Components/ui/LoadingSpinner";
+const RouteWrapper = ({ children }) => (
+  <React.Suspense
+    fallback={
+      <div className="flex-center min-h-[60vh]">
+        <LoadingSpinner size="lg" />
+      </div>
+    }
+  >
+    {children}
+  </React.Suspense>
+);
 
-// Loading wrapper
-const RouteWrapper = ({ children }) => {
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      {children}
-    </Suspense>
-  );
-};
-
-// Protected route
-const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("auth_token");
-
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const isAuthenticated = localStorage.getItem('auth_token');
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-
+  if (requiredRole) {
+    const role = localStorage.getItem('auth_role');
+    if (role && role.toUpperCase() !== requiredRole.toUpperCase()) {
+      const redirectByRole = {
+        ADMIN: '/admin',
+        DOCTOR: '/doctor',
+        RECEPTIONIST: '/staff',
+        PATIENT: '/patient',
+      };
+      return <Navigate to={redirectByRole[role?.toUpperCase()] || '/login'} replace />;
+    }
+  }
   return children;
 };
 
-// Router
+const redirectByRole = () => {
+  const role = localStorage.getItem('auth_role');
+  const map = {
+    ADMIN: '/admin',
+    DOCTOR: '/doctor',
+    RECEPTIONIST: '/staff',
+    PATIENT: '/patient',
+  };
+  return map[role?.toUpperCase()] || '/admin';
+};
+
 const router = createBrowserRouter([
-  // =========================
-  // PUBLIC WEBSITE
-  // =========================
+  // ---- Public website ----
   {
-    path: "/",
+    path: '/',
     element: <Layout />,
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: (
-          <RouteWrapper>
-            <Home />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "doctors",
-        element: (
-          <RouteWrapper>
-            <Doctor />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "doctors/:id",
-        element: (
-          <RouteWrapper>
-            <DoctorDetail />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "services",
-        element: (
-          <RouteWrapper>
-            <Services />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "services/:serviceId",
-        element: (
-          <RouteWrapper>
-            <ServiceDetail />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "about",
-        element: (
-          <RouteWrapper>
-            <About />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "contact",
-        element: (
-          <RouteWrapper>
-            <Contact />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "book",
-        element: (
-          <RouteWrapper>
-            <Booking />
-          </RouteWrapper>
-        ),
-      },
-      {
-        path: "home",
-        element: <Navigate to="/" replace />,
-      },
+      { index: true, element: <RouteWrapper><Home /></RouteWrapper> },
+      { path: 'doctors', element: <RouteWrapper><Doctor /></RouteWrapper> },
+      { path: 'doctors/:id', element: <RouteWrapper><DoctorDetail /></RouteWrapper> },
+      { path: 'services', element: <RouteWrapper><Services /></RouteWrapper> },
+      { path: 'services/:serviceId', element: <RouteWrapper><ServiceDetail /></RouteWrapper> },
+      { path: 'about', element: <RouteWrapper><About /></RouteWrapper> },
+      { path: 'contact', element: <RouteWrapper><Contact /></RouteWrapper> },
+      { path: 'book', element: <RouteWrapper><Booking /></RouteWrapper> },
+      { path: 'home', element: <Navigate to="/" replace /> },
+      { path: 'dashboard', element: <Navigate to={redirectByRole()} replace /> },
     ],
   },
 
-  // =========================
-  // ADMIN
-  // =========================
+  // ---- ADMIN DASHBOARD ----
   {
-    path: "/admin",
+    path: '/admin',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="ADMIN">
         <AdminLayout />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <AdminOverview />,
-      },
-      {
-        path: "doctors",
-        element: <AdminDoctors />,
-      },
-      {
-        path: "reports",
-        element: <AdminReports />,
-      },
-      {
-        path: "settings",
-        element: <AdminSettings />,
-      },
+      { index: true, element: <AdminOverview /> },
+      { path: 'doctors', element: <AdminDoctors /> },
+      { path: 'reports', element: <AdminReports /> },
+      { path: 'settings', element: <AdminSettings /> },
     ],
   },
 
-  // =========================
-  // STAFF
-  // =========================
+  // ---- STAFF / RECEPTIONIST DASHBOARD ----
   {
-    path: "/staff",
+    path: '/staff',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="RECEPTIONIST">
         <StaffLayout />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <StaffOverview />,
-      },
-      {
-        path: "appointments",
-        element: <StaffAppointment />,
-      },
-      {
-        path: "patients",
-        element: <Staffpatients />,
-      },
-      {
-        path: "queue",
-        element: <StaffQueue />,
-      },
-      {
-        path: "billing",
-        element: <StaffBiling />,
-      },
-      {
-        path: "settings",
-        element: <StaffSetting />,
-      },
+      { index: true, element: <StaffOverview /> },
+      { path: 'appointments', element: <StaffAppointments /> },
+      { path: 'patients', element: <StaffPatients /> },
+      { path: 'queue', element: <StaffQueue /> },
+      { path: 'billing', element: <StaffBilling /> },
+      { path: 'settings', element: <StaffSettings /> },
     ],
   },
 
-  // =========================
-  // PATIENT
-  // =========================
+  // ---- DOCTOR DASHBOARD ----
   {
-    path: "/patient",
+    path: '/doctor',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole="DOCTOR">
+        <DoctorLayout />
+      </ProtectedRoute>
+    ),
+    errorElement: <NotFound />,
+    children: [
+      { index: true, element: <DoctorOverview /> },
+      { path: 'appointments', element: <DoctorAppointments /> },
+      { path: 'patients', element: <DoctorPatients /> },
+      { path: 'records', element: <DoctorRecords /> },
+      { path: 'settings', element: <DoctorSettings /> },
+    ],
+  },
+
+  // ---- PATIENT DASHBOARD ----
+  {
+    path: '/patient',
+    element: (
+      <ProtectedRoute requiredRole="PATIENT">
         <PatientLayout />
       </ProtectedRoute>
     ),
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <PatientAppointment />,
-      },
-      {
-        path: "history",
-        element: <PatientHistory />,
-      },
+      { index: true, element: <PatientAppointments /> },
+      { path: 'history', element: <PatientHistory /> },
     ],
   },
 
-  // =========================
-  // LOGIN
-  // =========================
+  // ---- Auth ----
   {
-    path: "/login",
+    path: '/login',
     element: <AuthLayout />,
     children: [
       {
         index: true,
         element: (
-          <div className="login-container">
-            <h1>Login</h1>
-
-            <input
-              type="text"
-              placeholder="Email or phone"
-              className="input"
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              className="input"
-            />
-
-            <button
-              onClick={() => {
-                localStorage.setItem("auth_token", "demo_token");
-                window.location.href = "/admin";
-              }}
-              className="btn btn-primary btn-full"
-            >
-              Sign in
-            </button>
-
-            <p>Demo mode — any credentials will sign you in.</p>
-          </div>
+          <RouteWrapper>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Email or phone</label>
+                <input type="text" placeholder="you@example.com" className="input" />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                <input type="password" placeholder="••••••••" className="input" />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Login as (demo)</label>
+                <select id="demo_role" className="input" defaultValue="DOCTOR">
+                  <option value="ADMIN">Administrator</option>
+                  <option value="DOCTOR">Doctor</option>
+                  <option value="RECEPTIONIST">Receptionist / Staff</option>
+                  <option value="PATIENT">Patient</option>
+                </select>
+              </div>
+              <button
+                onClick={() => {
+                  const role = document.getElementById('demo_role').value;
+                  localStorage.setItem('auth_token', 'demo_token_' + Date.now());
+                  localStorage.setItem('auth_role', role);
+                  const dest = { ADMIN: '/admin', DOCTOR: '/doctor', RECEPTIONIST: '/staff', PATIENT: '/patient' }[role] || '/';
+                  window.location.href = dest;
+                }}
+                className="btn btn-primary btn-full"
+              >
+                Sign in
+              </button>
+              <p className="text-center text-xs text-slate-400">Demo mode — select a role above, any credentials will sign you in to the corresponding dashboard.</p>
+            </div>
+          </RouteWrapper>
         ),
       },
     ],
   },
 
-  // =========================
-  // 404
-  // =========================
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+  { path: '*', element: <NotFound /> },
 ]);
 
-// App Router
-const AppRouter = () => {
-  return <RouterProvider router={router} />;
-};
+const AppRouter = () => <RouterProvider router={router} />;
 
 export default AppRouter;
