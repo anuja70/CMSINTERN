@@ -19,7 +19,7 @@ import {
   Plus,
   CalendarPlus,
 } from 'lucide-react';
-import { useTheme } from '../../Contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAppDispatch, useAppSelector } from '../../hooks/authHooks.js';
 import { logoutUser } from '../../Redux/slices/authSlice.js';
 import Button from '../ui/Button';
