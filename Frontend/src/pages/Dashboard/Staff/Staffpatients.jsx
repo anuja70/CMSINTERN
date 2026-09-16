@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { Search, UserPlus, Globe, Building2, Phone, X, CheckCircle2, UserCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Search, UserPlus, Phone, X, CheckCircle2, Pencil, LoaderCircle } from 'lucide-react';
 import SectionCard from '../../../Components/sections/SectionCard';
-import { patients as initialPatients } from '../../../utils/dashboardData';
-import { doctorsData } from '../../../utils/dummyData';
-import CustomDoctorSelect from '../../../Components/ui/CustomDoctorSelect';
+import { fetchPatients, savePatientProfile } from '../../../Redux/slices/patientslice.js';
+
 
 const avatarTones = [
   'bg-primary-100 text-primary-700',

@@ -38,7 +38,7 @@ import AdminSettings from "../pages/Dashboard/Admin/AdminSettings";
 // Staff Dashboard
 import StaffOverview from "../pages/Dashboard/Staff/StaffOverview";
 import StaffAppointments from "../pages/Dashboard/Staff/StaffAppointment";
-import StaffPatients from "../pages/Dashboard/Staff/Staffpatients";
+import StaffPatients from "../pages/Dashboard/Staff/StaffPatients.jsx";
 import StaffQueue from "../pages/Dashboard/Staff/StaffQueue";
 import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
 import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
