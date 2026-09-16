@@ -20,6 +20,8 @@ import {
   CalendarPlus,
 } from 'lucide-react';
 import { useTheme } from '../../Contexts/ThemeContext';
+import { useAppDispatch, useAppSelector } from '../../hooks/authHooks.js';
+import { logoutUser } from '../../Redux/slices/authSlice.js';
 import Button from '../ui/Button';
 
 const navLinks = [
@@ -46,6 +48,7 @@ const services = [
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);

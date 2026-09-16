@@ -3,15 +3,21 @@ import { Menu, Search, Bell, Moon, Sun, ChevronDown, User, Settings, HelpCircle,
 import { useTheme } from '../../contexts/ThemeContext';
 import { activityFeed } from '../../utils/dashboardData';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../hooks/authHooks.js';
+import { logoutUser } from '../../Redux/slices/authSlice.js';
+import { getInitials } from '../../utils/helpers.js';
 
 const Topbar = ({ onMenu, title, subtitle }) => {
   const { theme, toggleTheme } = useTheme();
+  const dispatch = useAppDispatch();
+   const navigate = useNavigate();
+  const { user } = useAppSelector((s) => s.auth);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // 'profile' | 'settings' | 'help'
   const [toast, setToast] = useState('');
   const ref = useRef(null);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     const onClick = (e) => {
@@ -23,7 +29,12 @@ const Topbar = ({ onMenu, title, subtitle }) => {
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
-
+  const displayName = user?.fullName || 'User';
+  const displayRole = user?.role ? user.role.charAt(0) + user.role.slice(1).toLowerCase() : 'User';
+  const displayEmail = user?.email || '';
+  const displayPhone = user?.phone || '';
+  const avatarInitials = getInitials(displayName);
+  
   const handleAction = (item) => {
     setProfileOpen(false);
     if (item === 'Log out') {

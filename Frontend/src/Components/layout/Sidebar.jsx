@@ -14,8 +14,18 @@ import {
   LogOut,
   X,
 } from 'lucide-react';
-
+import { useAppDispatch } from '../../hooks/authHooks.js';
+import { logoutUser } from '../../Redux/slices/authSlice.js';
 const Sidebar = ({ open, onClose, navItems, title = 'Clinic' }) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+
+ const handleSignOut = async () => {
+    await dispatch(logoutUser());
+    navigate('/');
+  };
+  
   return (
     <>
       {/* Mobile backdrop */}

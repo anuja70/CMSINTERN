@@ -20,6 +20,7 @@ const navItems = [
 const titles = {
   '/admin': { title: 'Admin Overview', subtitle: "Today's clinic activity at a glance" },
   '/admin/doctors': { title: 'Doctors', subtitle: 'Specialists, availability and load' },
+   '/admin/staff': { title: 'Staff accounts', subtitle: 'Provision and manage clinic staff access' },
   '/admin/reports': { title: 'Reports', subtitle: 'Revenue and operational insights' },
   '/admin/settings': { title: 'Settings', subtitle: 'Clinic profile and preferences' },
 };
