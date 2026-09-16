@@ -4,7 +4,7 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import { useAppSelector } from '../hooks/authhooks.js';
+import { useAppSelector } from '../hooks/authHooks.js';
 
 // Layouts
 import Layout from "../Components/layout/Layout";
@@ -26,6 +26,8 @@ import ServiceDetail from "../pages/ServiceDetail";
 import Booking from "../pages/Booking";
 import Login from '../pages/Login.jsx';
 import Register from '../pages/Register.jsx';
+import ForgotPassword from '../pages/ForgotPassword.jsx';
+import ResetPassword from '../pages/ResetPassword.jsx';
 
 // Admin Dashboard
 import AdminOverview from "../pages/Dashboard/Admin/AdminOverview";
@@ -254,6 +256,44 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '/forgot-password',
+    element: (
+      <GuestRoute>
+        <AuthLayout />
+      </GuestRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <RouteWrapper>
+            <ForgotPassword />
+          </RouteWrapper>
+        ),
+      },
+    ],
+  },
+
+  {
+    path: '/reset-password',
+    element: (
+      <GuestRoute>
+        <AuthLayout />
+      </GuestRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <RouteWrapper>
+            <ResetPassword />
+          </RouteWrapper>
+        ),
+      },
+    ],
+  },
+
 
   { path: '*', element: <NotFound /> },
 ]);
