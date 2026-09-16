@@ -96,8 +96,79 @@ export const registerUser = async (userData) => {
 };
 
 // ==================== LOGIN USER ====================
+const createAuthSession = async (user, userAgent, ipAddress, action = 'LOGIN') => {
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+            lastLoginAt: new Date(),
+            lastLoginIP: ipAddress,
+        },
+    });
+
+    const payload = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+    };
+
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    try {
+        await prisma.refreshToken.create({
+            data: {
+                token: refreshToken,
+                userId: user.id,
+                userAgent,
+                ipAddress,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            },
+        });
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2000') {
+            throw new Error('Refresh token storage failed due to token length. Please contact support.');
+        }
+        throw error;
+    }
+
+    try {
+        await prisma.session.create({
+            data: {
+                userId: user.id,
+                token: accessToken,
+                userAgent,
+                ipAddress,
+                expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+            },
+        });
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2000') {
+            throw new Error('Session token storage failed due to token length. Please contact support.');
+        }
+        throw error;
+    }
+
+    await prisma.auditLog.create({
+        data: {
+            userId: user.id,
+            action,
+            resource: 'User',
+            details: { email: user.email },
+            ipAddress,
+            userAgent,
+        },
+    });
+
+    const { password: _, ...userWithoutPassword } = user;
+    return {
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken,
+    };
+};
+
+// ==================== LOGIN USER ====================
 export const loginUser = async (email, password, userAgent, ipAddress) => {
-    // Find user with email - REMOVED profile include
     const user = await prisma.user.findUnique({
         where: { email },
     });
@@ -110,87 +181,76 @@ export const loginUser = async (email, password, userAgent, ipAddress) => {
         throw new Error(MESSAGES.ACCOUNT_DISABLED || 'Account is disabled');
     }
 
-    // Verify password
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
         throw new Error(MESSAGES.INVALID_CREDENTIALS || 'Invalid email or password');
     }
 
-    // Update last login
-    await prisma.user.update({
-        where: { id: user.id },
-        data: {
-            lastLoginAt: new Date(),
-            lastLoginIP: ipAddress,
-        },
-    });
-
-    // Generate tokens
-    const payload = {
-        id: user.id,
-        email: user.email,
-        role: user.role
-    };
-    
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-
-    // Store refresh token
-    try {
-        await prisma.refreshToken.create({
-            data: {
-                token: refreshToken,
-                userId: user.id,
-                userAgent,
-                ipAddress,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-            },
-        });
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2000') {
-            throw new Error('Refresh token storage failed due to token length. Please contact support.');
-        }
-        throw error;
+    if (user.role === 'ADMIN') {
+        throw new Error('Administrators must sign in through the admin portal');
     }
 
-    // Create session
-    try {
-        await prisma.session.create({
-            data: {
-                userId: user.id,
-                token: accessToken,
-                userAgent,
-                ipAddress,
-                expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
-            },
-        });
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2000') {
-            throw new Error('Session token storage failed due to token length. Please contact support.');
-        }
-        throw error;
+    return createAuthSession(user, userAgent, ipAddress, 'LOGIN');
+};
+
+// ==================== ADMIN LOGIN (OTP) ====================
+export const initiateAdminLogin = async (email, password) => {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+        throw new Error(MESSAGES.INVALID_CREDENTIALS || 'Invalid email or password');
+    }
+    if (user.role !== 'ADMIN') {
+        throw new Error('This portal is for administrators only');
+    }
+    if (!user.isActive) {
+        throw new Error(MESSAGES.ACCOUNT_DISABLED || 'Account is disabled');
     }
 
-    // Create audit log for security monitoring
-    await prisma.auditLog.create({
-        data: {
-            userId: user.id,
-            action: 'LOGIN',
-            resource: 'User',
-            details: { email: user.email },
-            ipAddress,
-            userAgent,
-        },
-    });
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
+        throw new Error(MESSAGES.INVALID_CREDENTIALS || 'Invalid email or password');
+    }
 
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = user;
-    
+    const otp = await sendOtp(email, 'EMAIL_VERIFICATION', user.id);
+    console.log(`[DEV/DEBUG] Admin login OTP for ${email}: ${otp}`);
+
+    try {
+        await sendVerificationEmail(email, otp, user.fullName);
+    } catch (error) {
+        console.error(`⚠️ Non-fatal: Failed to send admin login OTP to ${email}.`, error.message);
+    }
+
     return {
-        user: userWithoutPassword,
-        accessToken,
-        refreshToken
+        requiresOtp: true,
+        email: user.email,
+        message: 'A verification code has been sent to your email',
     };
+};
+
+export const completeAdminLogin = async (email, otp, userAgent, ipAddress) => {
+    const verificationResult = await verifyOtp(email, otp, 'EMAIL_VERIFICATION');
+    if (!verificationResult.success) {
+        throw new Error(MESSAGES.INVALID_OTP);
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.role !== 'ADMIN') {
+        throw new Error(MESSAGES.UNAUTHORIZED || 'Unauthorized access');
+    }
+    if (!user.isActive) {
+        throw new Error(MESSAGES.ACCOUNT_DISABLED || 'Account is disabled');
+    }
+
+    if (!user.isEmailVerified) {
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { isEmailVerified: true },
+        });
+        user.isEmailVerified = true;
+    }
+
+    return createAuthSession(user, userAgent, ipAddress, 'ADMIN_LOGIN');
 };
 
 // ==================== VERIFY EMAIL ====================
