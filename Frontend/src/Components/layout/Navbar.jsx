@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home as HomeIcon,
   Stethoscope,
+  Building2,
   HeartPulse,
   Info,
   Phone,
@@ -14,7 +15,6 @@ import {
   LayoutDashboard,
   LogIn,
   LogOut,
-  UserPlus,
   ArrowRight,
   Plus,
   CalendarPlus,
@@ -27,6 +27,7 @@ import Button from '../ui/Button';
 const navLinks = [
   { path: '/', label: 'Home', icon: HomeIcon },
   { path: '/doctors', label: 'Doctors', icon: Stethoscope },
+  { path: '/departments', label: 'Departments', icon: Building2 },
   { path: '/services', label: 'Services', icon: HeartPulse },
   { path: '/about', label: 'About', icon: Info },
   { path: '/contact', label: 'Contact', icon: Phone },
@@ -50,9 +51,9 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated } = useAppSelector((s) => s.auth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -60,10 +61,6 @@ const Navbar = () => {
     handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem('auth_token'));
   }, []);
 
   useEffect(() => {
@@ -82,17 +79,10 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isServicesDropdownOpen]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMenuOpen(false);
-    setIsServicesDropdownOpen(false);
-  }, [location.pathname]);
-
   const isActive = (path) => location.pathname === path;
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
     navigate('/');
   };
 
@@ -210,7 +200,7 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <>
-                <Link to="/admin">
+                <Link to="/dashboard">
                   <Button variant="outline" size="sm" icon={<LayoutDashboard className="h-4 w-4" />}>Dashboard</Button>
                 </Link>
                 <Button variant="danger" size="sm" icon={<LogOut className="h-4 w-4" />} onClick={handleLogout}>Logout</Button>
