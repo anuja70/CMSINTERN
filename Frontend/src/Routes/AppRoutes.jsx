@@ -40,7 +40,7 @@ import StaffOverview from "../pages/Dashboard/Staff/StaffOverview";
 import StaffAppointments from "../pages/Dashboard/Staff/StaffAppointment";
 import StaffPatients from "../pages/Dashboard/Staff/StaffPatients.jsx";
 import StaffQueue from "../pages/Dashboard/Staff/StaffQueue";
-import StaffBiling from "../pages/Dashboard/Staff/StaffBiling";
+import StaffBilling from "../pages/Dashboard/Staff/StaffBilling";
 import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
 
 // Patient Dashboard
