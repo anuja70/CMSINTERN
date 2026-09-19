@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAllDepartments } from '../services/departmentService.js';
-import { DepartmentContext } from './departmentContext.js';
+import { DepartmentContext } from './Contexts/DepartmentContext.jsx';
 
 export const DepartmentProvider = ({ children }) => {
   const [departments, setDepartments] = useState([]);
