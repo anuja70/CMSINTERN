@@ -1,6 +1,6 @@
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DoctorProvider } from './Contexts/doctorContext.js';
-import { DepartmentProvider } from './Contexts/departmentContext.jsx';
+import { DepartmentProvider } from './Contexts/DepartmentContext.jsx';
 import AppRouter from './Routes/AppRoutes';
 
 function App() {
