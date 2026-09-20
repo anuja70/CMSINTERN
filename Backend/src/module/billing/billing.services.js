@@ -340,7 +340,8 @@ export const deleteBill = async (billId, deletedBy) => {
         data: {
             userId: deletedBy || existing.generatedBy,
             action: "DELETE",
-            description: `Bill ${existing.billNumber} (NPR ${existing.totalAmount}) deleted`,
+            resource: "Bill",
+            details: { billNumber: existing.billNumber, totalAmount: existing.totalAmount },
         },
     });
 
