@@ -9,6 +9,10 @@ cloudinary.config({
     secure: true,
 });
 
+const getCloudinaryError = (error) => ({
+  message: error?.error?.message || error?.message || 'Unknown Cloudinary error',
+  httpCode: error?.http_code || error?.error?.http_code,
+});
 
 // Upload single file to Cloudinary
 export const uploadToCloudinary = async (file, options = {}) => {
@@ -23,8 +27,11 @@ export const uploadToCloudinary = async (file, options = {}) => {
 
         return result;
     } catch (error) {
+        const details = getCloudinaryError(error);
         console.error("Cloudinary upload error:", error);
-        throw new Error("Failed to upload to Cloudinary");
+        const uploadError = new Error('CLOUDINARY_UPLOAD_FAILED');
+        uploadError.cause = details;
+        throw uploadError;
     }
 };
 
@@ -41,45 +48,29 @@ export const uploadMulterToCloudinary = async (files, options = {}) => {
 
         return await Promise.all(uploadPromises);
     } catch (error) {
+         const details = getCloudinaryError(error);
         console.error("Cloudinary multiple upload error:", error);
-        throw new Error("Failed to upload multiple files to Cloudinary");
+        const uploadError = new Error('CLOUDINARY_UPLOAD_FAILED');
+        uploadError.cause = details;
+        throw uploadError;
     }
 };
 
 
-// Get Cloudinary URL
+// ==================== DELETE FILE ====================
+export const deleteFromCloudinary = async (publicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result;
+  } catch (error) {
+    console.error('Cloudinary delete error:', error);
+    throw new Error('Failed to delete from Cloudinary');
+  }
+};
+
+// ==================== GET CLOUDINARY URL ====================
 export const getCloudinaryUrl = (publicId, options = {}) => {
-    try {
-        return cloudinary.url(publicId, {
-            secure: true,
-            resource_type: options.resource_type || "image",
-            transformation: options.transformation || [],
-            ...options,
-        });
-    } catch (error) {
-        console.error("Cloudinary URL error:", error);
-        throw new Error("Failed to generate Cloudinary URL");
-    }
+  return cloudinary.url(publicId, { secure: true, ...options });
 };
-
-
-// Delete file from Cloudinary
-export const deleteFromCloudinary = async (
-    publicId,
-    resourceType = "image"
-) => {
-    try {
-        const result = await cloudinary.uploader.destroy(publicId, {
-            resource_type: resourceType,
-        });
-
-        return result;
-    } catch (error) {
-        console.error("Cloudinary delete error:", error);
-        throw new Error("Failed to delete file from Cloudinary");
-    }
-};
-
-
 
 export default cloudinary;
