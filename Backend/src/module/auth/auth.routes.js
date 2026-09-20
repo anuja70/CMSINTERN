@@ -26,8 +26,6 @@ router.post('/refresh-token', authController.refreshToken);
 // ==================== PROTECTED ROUTES ====================
 router.use(verifyToken);
 
-router.post('/logout', authController.logout);
-router.get('/profile', authController.getProfile);
 
 // Profile update — supports optional avatar upload
 router.put(

@@ -1,37 +1,32 @@
 import { z } from 'zod';
 
-// Register Validation Schema— PUBLIC self-registration endpoint.
-// Allows ONLY Patient signup. ADMIN / DOCTOR / RECEPTIONIST accounts must be
-// provisioned by an existing Admin via the /admin or /staff endpoints.
+// Register Validation Schema — public patient and doctor signup.
 export const registerSchema = z.object({
     fullName: z.string()
         .min(2, 'Full name must be at least 2 characters')
         .max(100, 'Full name cannot exceed 100 characters')
         .min(1, 'Full name is required'),
-    
+
     email: z.string()
         .email('Please enter a valid email')
         .min(1, 'Email is required')
         .transform(val => val.toLowerCase().trim()),
-    
+
     phone: z.string()
         .min(1, 'Phone number is required')
         .regex(/^\+?[\d\s-]{10,}$/, 'Please enter a valid phone number'),
-    
+
     password: z.string()
         .min(8, 'Password must be at least 8 characters')
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
             'Password must contain at least one uppercase, one lowercase, and one number'),
-    
-             confirmPassword: z.string()
+
+    confirmPassword: z.string()
         .min(1, 'Confirm password is required'),
 
-    // Intentionally locked to PATIENT for the public registration endpoint.
-    // Passing anything else will be coerced to PATIENT by the transform below.
-
-    role: z.enum([ 'PATIENT'], {
-        invalid_type_error:
-                'Public registration is available for patients only. Staff accounts must be created by an admin.',
+    role: z
+        .enum(['PATIENT', 'DOCTOR'], {
+            invalid_type_error: 'Choose either Patient or Doctor.',
         })
         .optional()
         .default('PATIENT'),
@@ -50,15 +45,8 @@ export const loginSchema = z.object({
     password: z.string()
         .min(1, 'Password is required'),
 });
-export const adminLoginSchema = z.object({
-    email: z.string()
-        .email('Please enter a valid email')
-        .min(1, 'Email is required')
-        .transform(val => val.toLowerCase().trim()),
-    
-    password: z.string()
-        .min(1, 'Password is required'),
-});
+
+export const adminLoginSchema = loginSchema;
 
 // Verify Email Validation Schema
 export const verifyEmailSchema = z.object({

@@ -1,7 +1,7 @@
 import * as authService from './auth.service.js';
-import { 
-    successResponse, 
-    createdResponse, 
+import {
+    successResponse,
+    createdResponse,
     errorResponse,
     unauthorizedResponse,
     forbiddenResponse,
@@ -14,7 +14,8 @@ import { uploadToCloudinarySingle, deleteFromCloudinaryFn } from '../../config/m
 import { setAccessTokenCookie, setRefreshTokenCookie, clearTokens } from '../../utils/cookie.js';
 import { 
     registerSchema, 
-    loginSchema, 
+    loginSchema,
+    adminLoginSchema,
     verifyEmailSchema,
     resendVerificationSchema,
     forgotPasswordSchema,
@@ -96,10 +97,14 @@ export const login = async (req, res) => {
         if (error.message === MESSAGES.ACCOUNT_DISABLED) {
             return forbiddenResponse(res, error.message);
         }
+        if (error.message === 'EMAIL_NOT_VERIFIED') {
+            return forbiddenResponse(res, 'Please verify your email before signing in.');
+        }
         
         return errorResponse(res, error.message || 'Login failed');
     }
 };
+
 export const adminLogin = async (req, res) => {
     try {
         const validatedData = await adminLoginSchema.parseAsync(req.body);
@@ -165,10 +170,12 @@ export const verifyAdminLogin = async (req, res) => {
 // Logout User
 export const logout = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         const accessToken = req.cookies?.accessToken;
 
-        await authService.logoutUser(userId, accessToken);
+        if (userId) {
+            await authService.logoutUser(userId, accessToken);
+        }
         clearTokens(res);
 
         return successResponse(res, null, MESSAGES.USER_LOGGED_OUT);
