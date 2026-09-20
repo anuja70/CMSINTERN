@@ -29,7 +29,7 @@ export const createStaff = async (payload, actorId) => {
 
   const [existingEmail, existingPhone] = await Promise.all([
     prisma.user.findUnique({ where: { email } }),
-    phone ? prisma.user.findUnique({ where: { phone } }) : Promise.resolve(null),
+    phone ? prisma.user.findFirst({ where: { phone } }) : Promise.resolve(null),
   ]);
 
   if (existingEmail) {
@@ -192,7 +192,7 @@ export const updateStaff = async (staffId, payload, actorId) => {
   }
 
   if (phone && phone !== existing.phone) {
-    const dup = await prisma.user.findUnique({ where: { phone } });
+    const dup = await prisma.user.findFirst({ where: { phone } });
     if (dup && dup.id !== staffId) {
       throw new Error(MESSAGES.PHONE_ALREADY_EXIST || 'Phone number already exists');
     }
