@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, LogIn, ShieldCheck } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/authHooks.js';
-import { loginUser, clearError } from '../Redux/slices/authslice.js';
+import { loginUser, clearError } from '../Redux/slices/authSlice.js';
 import Button from '../Components/ui/Button.jsx';
 import Input from '../Components/ui/Input.jsx';
 import LoadingSpinner from '../Components/ui/LoadingSpinner.jsx';
 
 const redirectByRole = (role) => {
+ if (role?.toUpperCase() === 'DOCTOR' && localStorage.getItem('doctor_onboarding_pending') === 'true') {
+    return '/doctor/onboarding';
+  }
+
   const map = {
     ADMIN: '/admin',
     DOCTOR: '/doctor',
