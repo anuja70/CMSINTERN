@@ -28,6 +28,7 @@ import Login from '../pages/Login.jsx';
 import Register from '../pages/Register.jsx';
 import ForgotPassword from '../pages/ForgotPassword.jsx';
 import ResetPassword from '../pages/ResetPassword.jsx';
+import VerifyEmail from '../pages/VerifyEmail.jsx';
 
 // Admin Dashboard
 import AdminOverview from "../pages/Dashboard/Admin/AdminOverview";
@@ -143,6 +144,8 @@ const router = createBrowserRouter([
       { index: true, element: <RouteWrapper><Home /></RouteWrapper> },
       { path: 'doctors', element: <RouteWrapper><Doctor /></RouteWrapper> },
       { path: 'doctors/:id', element: <RouteWrapper><DoctorDetail /></RouteWrapper> },
+       { path: 'departments', element: <RouteWrapper><Departments /></RouteWrapper> },
+      { path: 'departments/:id', element: <RouteWrapper><DepartmentDetail /></RouteWrapper> },
       { path: 'services', element: <RouteWrapper><Services /></RouteWrapper> },
       { path: 'services/:serviceId', element: <RouteWrapper><ServiceDetail /></RouteWrapper> },
       { path: 'about', element: <RouteWrapper><About /></RouteWrapper> },
@@ -164,6 +167,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminOverview /> },
       { path: 'doctors', element: <AdminDoctors /> },
+      { path: 'departments', element: <AdminDepartments /> },
       { path: 'staff', element: <AdminStaff /> },
       { path: 'reports', element: <AdminReports /> },
       { path: 'settings', element: <AdminSettings /> },
@@ -197,6 +201,7 @@ const router = createBrowserRouter([
     ),
     errorElement: <NotFound />,
     children: [
+      { path: 'onboarding', element: <DoctorOnboarding /> },
       { index: true, element: <DoctorOverview /> },
       { path: 'appointments', element: <DoctorAppointments /> },
       { path: 'patients', element: <DoctorPatients /> },
