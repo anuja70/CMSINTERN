@@ -189,9 +189,6 @@ export const loginUser = async (email, password, userAgent, ipAddress) => {
         throw new Error('EMAIL_NOT_VERIFIED');
     }
 
-    if (user.role === 'ADMIN') {
-        throw new Error('Administrators must sign in through the admin portal');
-    }
 
     return createAuthSession(user, userAgent, ipAddress, 'LOGIN');
 };
@@ -213,44 +210,6 @@ export const initiateAdminLogin = async (email, password) => {
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
         throw new Error(MESSAGES.INVALID_CREDENTIALS || 'Invalid email or password');
-    }
-
-    const otp = await sendOtp(email, 'EMAIL_VERIFICATION', user.id);
-    console.log(`[DEV/DEBUG] Admin login OTP for ${email}: ${otp}`);
-
-    try {
-        await sendVerificationEmail(email, otp, user.fullName);
-    } catch (error) {
-        console.error(`⚠️ Non-fatal: Failed to send admin login OTP to ${email}.`, error.message);
-    }
-
-    return {
-        requiresOtp: true,
-        email: user.email,
-        message: 'A verification code has been sent to your email',
-    };
-};
-
-export const completeAdminLogin = async (email, otp, userAgent, ipAddress) => {
-    const verificationResult = await verifyOtp(email, otp, 'EMAIL_VERIFICATION');
-    if (!verificationResult.success) {
-        throw new Error(MESSAGES.INVALID_OTP);
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || user.role !== 'ADMIN') {
-        throw new Error(MESSAGES.UNAUTHORIZED || 'Unauthorized access');
-    }
-    if (!user.isActive) {
-        throw new Error(MESSAGES.ACCOUNT_DISABLED || 'Account is disabled');
-    }
-
-    if (!user.isEmailVerified) {
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { isEmailVerified: true },
-        });
-        user.isEmailVerified = true;
     }
 
     return createAuthSession(user, userAgent, ipAddress, 'ADMIN_LOGIN');
