@@ -18,6 +18,8 @@ import DoctorLayout from "../Components/layout/DoctorLayout";
 import Home from "../pages/Home";
 import Doctor from "../pages/Doctor";
 import DoctorDetail from "../pages/DoctorDetail";
+import Departments from '../pages/Departments.jsx';
+import DepartmentDetail from '../pages/DepartmentDetail.jsx';
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/Error";
@@ -35,6 +37,8 @@ import AdminOverview from "../pages/Dashboard/Admin/AdminOverview";
 import AdminDoctors from "../pages/Dashboard/Admin/AdminDoctors";
 import AdminReports from "../pages/Dashboard/Admin/AdminReports";
 import AdminSettings from "../pages/Dashboard/Admin/AdminSettings";
+import AdminStaff from '../pages/dashboard/admin/AdminStaff';
+import AdminDepartments from '../pages/dashboard/admin/AdminDepartments';
 
 // Staff Dashboard
 import StaffOverview from "../pages/Dashboard/Staff/StaffOverview";
@@ -47,6 +51,8 @@ import StaffSettings from "../pages/Dashboard/Staff/StaffSetting";
 // Patient Dashboard
 import PatientAppointment from "../pages/Dashboard/patient/PatientAppointment";
 import PatientHistory from "../pages/Dashboard/patient/PatientHistory";
+import PatientBills from '../pages/dashboard/patient/PatientBills';
+
 
 // Doctor Dashboard
 import DoctorOverview from "../pages/Dashboard/doctor/DoctorOverview";
@@ -54,6 +60,8 @@ import DoctorAppointments from "../pages/Dashboard/doctor/DoctorAppointments";
 import DoctorPatients from "../pages/Dashboard/doctor/DoctorPatients";
 import DoctorRecords from "../pages/Dashboard/doctor/DoctorRecords";
 import DoctorSettings from "../pages/Dashboard/doctor/DoctorSettings";
+import DoctorOnboarding from '../pages/DoctorOnboarding.jsx';
+
 
 import LoadingSpinner from "../Components/ui/LoadingSpinner" ;
 
@@ -123,6 +131,7 @@ const GuestRoute = ({ children }) => {
   }
 
   if (isAuthenticated && user?.role) {
+    const isNewDoctor = user.role.toUpperCase() === 'DOCTOR' && localStorage.getItem('doctor_onboarding_pending') === 'true';
     const redirect = ROLE_DASHBOARD_MAP[user.role.toUpperCase()] || '/';
     return <Navigate to={redirect} replace />;
   }
@@ -279,6 +288,21 @@ const router = createBrowserRouter([
       },
     ],
   },
+  
+{
+    path: '/verify-email',
+    element: <AuthLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <RouteWrapper>
+            <VerifyEmail />
+          </RouteWrapper>
+        ),
+      },
+    ],
+  },
 
   {
     path: '/reset-password',
@@ -299,6 +323,7 @@ const router = createBrowserRouter([
     ],
   },
 
+ 
 
   { path: '*', element: <NotFound /> },
 ]);
