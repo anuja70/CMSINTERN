@@ -12,6 +12,7 @@ import sanitize from './middleware/sanitize.js';
 import helmetConfig, { extraSecurityHeaders, noCacheMiddleware } from './middleware/securityHeaders.js';
 
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.set('trust proxy', ENV.NODE_ENV === 'production' ? 1 : 0);
 
@@ -26,7 +27,7 @@ app.use(extraSecurityHeaders);
 // 2. CORS — strict origin list + credentials
 const allowedOrigins = [
   ENV.FRONTEND_URL,
-  'http://localhost:5173',
+  'http://localhost:5173',    // localhost:5155
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
@@ -54,7 +55,6 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
-
 
 // 3. Global API rate limiting
 app.use('/api', globalApiLimiter);
@@ -87,6 +87,14 @@ app.use((req, res, next) => {
 // ============================================================
 // ROUTES
 // ============================================================
+
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Clinic Management System API is running.',
+    health: '/api/health',
+  });
+});
 
 app.use('/api', router);
 

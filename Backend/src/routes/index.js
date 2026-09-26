@@ -11,17 +11,32 @@ import paymentRoutes from "../module/payments/payment.routes.js"
 import khaltiRoutes from "../module/khalti/khalti.routes.js"
 import esewaRoutes from "../module/esewa/esewa.routes.js"
 import dashboardRoutes from "../module/dashboard/dashboard.routes.js"
+import notificationRoutes from "../module/notification/notification.routes.js"
 
 const router = express.Router();
 
 router.get("/health",(req,res)=>{
     return res.json({
         message:"cilnic managemnet system",
-        success:true
-    })
-})
-router.use("/auth",authRoutes)
-router.use("/admin",adminRoutes)
+        success:true,
+        timestamp: new Date().toISOString(),
+    });
+});
+// ==================== AUTH ROUTES (PUBLIC — login / register / reset) ====================
+// Self-registration endpoint at /api/auth/register is restricted to PATIENT only.
+// Admin / Doctor / Receptionist accounts MUST be provisioned by an existing Admin
+// using the /api/admin or /api/staff endpoints below.
+router.use("/auth", authRoutes);
+
+// ==================== ADMIN ONLY ROUTES ====================
+// /api/admin  — admin user management + audit logs + create additional admins
+// /api/staff  — create / list / update / deactivate / delete DOCTOR & RECEPTIONIST accounts
+router.use("/admin", adminRoutes);
+router.use("/staff", staffRoutes);
+
+
+// ==================== BUSINESS MODULES ====================
+
 router.use("/patient",patientRoutes)
 router.use("/doctor",doctorRoutes)
 router.use("/appointment",appointmentRoutes)
@@ -32,4 +47,6 @@ router.use("/payments", paymentRoutes)
 router.use("/dashboard", dashboardRoutes)
 router.use("/khalti", khaltiRoutes)
 router.use("/esewa", esewaRoutes)
+router.use("/notification", notificationRoutes);
+
 export default router
