@@ -128,12 +128,12 @@ const PaymentModal = ({ isOpen, onClose, bill, onSuccess }) => {
   };
 
   const handleSubmit = () => {
-    if (method === 'ONLINE_KHALTI') return handleKhaltiPayment();
-    if (method === 'ONLINE_ESEWA') return handleEsewaPayment();
+    if (method === '_KHALTI') return handleKhaltiPayment();
+    if (method === 'ESEWA') return handleEsewaPayment();
     return handleCashCardPayment();
   };
 
-  // ==================== RENDER ====================
+  //RENDER 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -211,27 +211,17 @@ const PaymentModal = ({ isOpen, onClose, bill, onSuccess }) => {
                   icon: FiDollarSign,
                   color: 'text-green-600',
                 },
+               
+               
                 {
-                  id: 'CREDIT_CARD',
-                  label: 'Credit Card',
-                  icon: FiCreditCard,
-                  color: 'text-blue-600',
-                },
-                {
-                  id: 'DEBIT_CARD',
-                  label: 'Debit Card',
-                  icon: FiCreditCard,
-                  color: 'text-blue-600',
-                },
-                {
-                  id: 'ONLINE_KHALTI',
+                  id: 'KHALTI',
                   label: 'Pay with Khalti',
                   icon: FiSmartphone,
                   color: 'text-purple-600',
                   badge: 'Recommended',
                 },
                 {
-                  id: 'ONLINE_ESEWA',
+                  id: 'ESEWA',
                   label: 'Pay with eSewa',
                   icon: FiSmartphone,
                   color: 'text-green-600',
