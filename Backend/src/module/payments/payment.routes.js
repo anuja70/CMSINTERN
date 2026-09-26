@@ -18,6 +18,13 @@ const router = express.Router();
 
 router.use(verifyToken);
 
+// List all payments with pagination, filters — MUST be before /:id to avoid param clash
+router.get(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.RECEPTIONIST, ROLES.DOCTOR),
+  paymentController.getAllPayments,
+);
+
 // Summary + Transactions (admin/staff) — place before `/:id` to avoid clash
 router.get(
   '/summary',
