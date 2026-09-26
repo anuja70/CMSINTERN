@@ -6,14 +6,49 @@ import LoadingSpinner from '../../../Components/ui/LoadingSpinner';
 import PaymentModal from '../../../Components/payment/PaymentModal';
 import toast from 'react-hot-toast';
 import {
-  FiDollarSign,
-  FiEye,
-  FiCreditCard,
-  FiSearch,
-} from 'react-icons/fi';
+  DollarSign,
+  Eye,
+  CreditCard,
+  Search,
+} from 'lucide-react';
 
 const PatientBills = () => {
- 
+onst [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [bills, setBills] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedBill, setSelectedBill] = useState(null);
+
+  const fetchBills = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+      const patientId = user?.patientId || user?.profile?.patientId || user?.id;
+      if (patientId) {
+        const data = await getBillSummary({ patientId });
+        setBills(Array.isArray(data?.bills) ? data.bills : Array.isArray(data) ? data : []);
+      } else {
+        setBills([]);
+      }
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Failed to load bills');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBills();
+  }, [fetchBills]);
+
+  const handlePayClick = (bill) => {
+    setSelectedBill(bill);
+    setShowPaymentModal(true);
+  };
+
+  const filteredBills = statusFilter === 'ALL'
+    ? bills
+    : bills.filter((b) => b.status === statusFilter);
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -26,7 +61,6 @@ const PatientBills = () => {
     return styles[status] || 'bg-gray-100 text-gray-800';
   };
 
-  //RENDER 
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -37,13 +71,11 @@ const PatientBills = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">My Bills</h1>
         <p className="text-gray-600 mt-1">View and pay your hospital bills</p>
       </div>
 
-      {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-4">
         <div className="flex gap-3">
           <select
@@ -51,7 +83,7 @@ const PatientBills = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">All Status</option>
+            <option value="ALL">All Status</option>
             <option value="UNPAID">Unpaid</option>
             <option value="PAID">Paid</option>
             <option value="PARTIALLY_PAID">Partially Paid</option>
@@ -59,15 +91,14 @@ const PatientBills = () => {
         </div>
       </div>
 
-      {/* Bills List */}
-      {bills.length === 0 ? (
+      {filteredBills.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm text-center py-16">
-          <FiDollarSign size={48} className="mx-auto text-gray-300 mb-4" />
+          <DollarSign size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500">No bills found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {bills.map((bill) => {
+          {filteredBills.map((bill) => {
             const totalPaid =
               bill.payments?.reduce((s, p) => s + p.amount, 0) || 0;
             const remaining = bill.totalAmount - totalPaid;
@@ -81,14 +112,13 @@ const PatientBills = () => {
                 key={bill.id}
                 className="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow"
               >
-                {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <p className="font-mono text-sm text-gray-500">
-                      {bill.invoiceNumber}
+                      {bill.invoiceNumber || bill.id}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(bill.generatedAt).toLocaleDateString()}
+                      {new Date(bill.generatedAt || bill.createdAt || Date.now()).toLocaleDateString()}
                     </p>
                   </div>
                   <span
@@ -100,7 +130,6 @@ const PatientBills = () => {
                   </span>
                 </div>
 
-                {/* Amount */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-500">Total Amount</p>
                   <p className="text-2xl font-bold text-gray-900">
@@ -122,12 +151,11 @@ const PatientBills = () => {
                   )}
                 </div>
 
-                {/* Items Preview */}
                 {bill.items?.length > 0 && (
                   <div className="mb-4 text-xs text-gray-500">
                     {bill.items.slice(0, 2).map((item, i) => (
                       <p key={i} className="truncate">
-                        • {item.description}
+                        • {item.description || item.name}
                       </p>
                     ))}
                     {bill.items.length > 2 && (
@@ -138,20 +166,19 @@ const PatientBills = () => {
                   </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex gap-2 pt-3 border-t">
                   <Link
                     to={`/patient/billing/${bill.id}`}
                     className="flex-1 text-center py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium inline-flex items-center justify-center gap-1"
                   >
-                    <FiEye size={14} /> View
+                    <Eye size={14} /> View
                   </Link>
                   {canPay && (
                     <button
                       onClick={() => handlePayClick(bill)}
                       className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium inline-flex items-center justify-center gap-1"
                     >
-                      <FiCreditCard size={14} /> Pay Now
+                      <CreditCard size={14} /> Pay Now
                     </button>
                   )}
                 </div>
@@ -161,7 +188,6 @@ const PatientBills = () => {
         </div>
       )}
 
-      {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
