@@ -1,6 +1,35 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+export const resendApiKey = process.env.RESEND_API_KEY || '';
+
+const resendKeyFromEnv = process.env.RESEND_API_KEY;
+const emailFromEnvRaw = process.env.EMAIL_FROM || process.env.EMAIL_FROM_ADDR;
+if (resendKeyFromEnv && !emailFromEnvRaw && process.env.NODE_ENV !== 'development') {
+  console.warn('='.repeat(72));
+  console.warn('🚨 EMAIL CONFIG WARNING: RESEND_API_KEY is set but EMAIL_FROM is not!');
+  console.warn('   Emails will 400 in production until you set EMAIL_FROM to a');
+  console.warn('   Resend-verified sender (e.g. EMAIL_FROM="Clinic <noreply@yourdomain>").');
+  console.warn('   Falling back to hardcoded default sender.');
+  console.warn('='.repeat(72));
+}
+
+const resolveEmailFrom = () => {
+  const envVal = process.env.EMAIL_FROM;
+  if (envVal && envVal.trim()) return envVal;
+  const addrVal = process.env.EMAIL_FROM_ADDR;
+  if (addrVal && addrVal.trim()) {
+    return `BishwasSetu <${addrVal.trim()}>`;
+  }
+  return 'BishwasSetu <noreply@bishwassetu.health>';
+};
+
+const resolveSmtpPort = () => {
+  const v = process.env.SMTP_PORT;
+  if (v === undefined || v === null || v === '') return 587;
+  const n = Number(v);
+  return isNaN(n) ? 587 : n;
+};
 
 export const env = {
     // Server
